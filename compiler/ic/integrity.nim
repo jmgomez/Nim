@@ -147,7 +147,7 @@ proc checkIntegrity*(g: ModuleGraph) =
       discard "nothing to do"
     of loading:
       assert false, "cannot check integrity: Module still loading"
-    of stored, storing, outdated, loaded:
+    of stored, storing, outdated, loaded, skip:
       c.thisModule = int32 i
       checkModule(c, g.packed[i].fromDisk)
 

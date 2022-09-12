@@ -502,6 +502,11 @@ proc rememberFlag*(g: ModuleGraph; m: PSym; flag: ModuleBackendFlag) =
     g.packed[m.position].fromDisk.backendFlags.incl flag
 
 proc closeRodFile*(g: ModuleGraph; m: PSym) =
+  if m.name.s notin ["testimport"]:
+    g.packed[m.position].status = skip
+    return
+
+  echo "Storing " & m.name.s
   if g.config.symbolFiles in {readOnlySf, v2Sf}:
     # For stress testing we seek to reload the symbols from memory. This
     # way much of the logic is tested but the test is reproducible as it does

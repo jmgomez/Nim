@@ -709,7 +709,8 @@ type
     loading,
     loaded,
     outdated,
-    stored    # store is complete, no further additions possible
+    stored,   # store is complete, no further additions possible
+    skip #module should be skipped from IC
 
   LoadedModule* = object
     status*: ModuleStatus
@@ -738,7 +739,7 @@ proc toFileIndexCached*(c: var PackedDecoder; g: PackedModuleGraph; thisModule: 
 
 proc translateLineInfo(c: var PackedDecoder; g: var PackedModuleGraph; thisModule: int;
                        x: PackedLineInfo): TLineInfo =
-  assert g[thisModule].status in {loaded, storing, stored}
+  assert g[thisModule].status in {loaded, storing, stored, skip}
   result = TLineInfo(line: x.line, col: x.col,
             fileIndex: toFileIndexCached(c, g, thisModule, x.file))
 
@@ -872,7 +873,7 @@ proc loadSym(c: var PackedDecoder; g: var PackedModuleGraph; thisModule: int; s:
     result = nil
   else:
     let si = moduleIndex(c, g, thisModule, s)
-    assert g[si].status in {loaded, storing, stored}
+    assert g[si].status in {loaded, storing, stored, skip}
     if not g[si].symsInit:
       g[si].symsInit = true
       setLen g[si].syms, g[si].fromDisk.syms.len
@@ -918,7 +919,7 @@ proc loadType(c: var PackedDecoder; g: var PackedModuleGraph; thisModule: int; t
     result = nil
   else:
     let si = moduleIndex(c, g, thisModule, t)
-    assert g[si].status in {loaded, storing, stored}
+    assert g[si].status in {loaded, storing, stored, skip}
     assert t.item > 0
 
     if not g[si].typesInit:
@@ -1011,7 +1012,7 @@ proc needsRecompile(g: var PackedModuleGraph; conf: ConfigRef; cache: IdentCache
       g[m].status = outdated
       result = true
     when false: loadError(err, rod, conf)
-  of loading, loaded:
+  of loading, loaded, skip:
     # For loading: Assume no recompile is required.
     result = false
   of outdated, storing, stored:

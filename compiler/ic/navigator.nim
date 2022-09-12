@@ -152,7 +152,7 @@ proc nav(g: ModuleGraph) =
       discard "nothing to do"
     of loading:
       assert false, "cannot check integrity: Module still loading"
-    of stored, storing, outdated, loaded:
+    of stored, storing, outdated, loaded, skip:
       c.thisModule = int32 i
       list(c, g.packed[i].fromDisk.topLevel, symId)
       list(c, g.packed[i].fromDisk.bodies, symId)
@@ -164,7 +164,7 @@ proc navDefusages*(g: ModuleGraph) = nav(g)
 proc writeRodFiles*(g: ModuleGraph) =
   for i in 0..high(g.packed):
     case g.packed[i].status
-    of undefined, loading, stored, loaded:
+    of undefined, loading, stored, loaded, skip:
       discard "nothing to do"
     of storing, outdated:
       closeRodFile(g, g.packed[i].module)

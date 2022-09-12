@@ -117,6 +117,12 @@ proc aliveSymsChanged(config: ConfigRef; position: int; alive: AliveSyms): bool 
 
 proc genPackedModule(g: ModuleGraph, i: int; alive: var AliveSyms) =
   # case statement here to enforce exhaustive checks.
+  echo "module state is "
+  let status = g.packed[i].status
+  echo $status
+  if status != undefined:
+    echo g.packed[i].module.name.s
+
   case g.packed[i].status
   of undefined:
     discard "nothing to do"
@@ -126,7 +132,7 @@ proc genPackedModule(g: ModuleGraph, i: int; alive: var AliveSyms) =
     storeAliveSyms(g.config, g.packed[i].module.position, alive)
     generateCodeForModule(g, g.packed[i], alive)
     closeRodFile(g, g.packed[i].module)
-  of loaded:
+  of loaded, skip:
     if g.packed[i].loadedButAliveSetChanged:
       generateCodeForModule(g, g.packed[i], alive)
     else:
@@ -158,7 +164,7 @@ proc generateCode*(g: ModuleGraph) =
       assert false
     of storing, outdated:
       setupBackendModule(g, g.packed[i])
-    of loaded:
+    of loaded, skip:
       # Even though this module didn't change, DCE might trigger a change.
       # Consider this case: Module A uses symbol S from B and B does not use
       # S itself. A is then edited not to use S either. Thus we have to
