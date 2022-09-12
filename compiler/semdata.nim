@@ -319,7 +319,11 @@ proc newContext*(graph: ModuleGraph; module: PSym): PContext =
   if graph.config.symbolFiles != disabledSf:
     let id = module.position
     assert graph.packed[id].status in {undefined, outdated}
-    graph.packed[id].status = storing
+    if module.name.s in ["engine", "testimport"]:
+      graph.packed[id].status = storing
+    else:
+      graph.packed[id].status = skip
+
     graph.packed[id].module = module
     initEncoder graph, module
 
