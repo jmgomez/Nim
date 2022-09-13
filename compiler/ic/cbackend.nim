@@ -129,6 +129,9 @@ proc genPackedModule(g: ModuleGraph, i: int; alive: var AliveSyms) =
   of loading, stored:
     assert false
   of storing, outdated:
+    echo "module state is "
+    echo $g.packed[i].status
+    echo g.packed[i].module.name.s
     storeAliveSyms(g.config, g.packed[i].module.position, alive)
     generateCodeForModule(g, g.packed[i], alive)
     closeRodFile(g, g.packed[i].module)

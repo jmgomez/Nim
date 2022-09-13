@@ -503,7 +503,8 @@ proc rememberFlag*(g: ModuleGraph; m: PSym; flag: ModuleBackendFlag) =
 
 proc closeRodFile*(g: ModuleGraph; m: PSym) =
   if m.name.s notin ["testimport"]:
-    g.packed[m.position].status = skip
+    echo "Skips: " & m.name.s
+    g.packed[m.position].status = loaded
     return
 
   echo "Storing " & m.name.s
