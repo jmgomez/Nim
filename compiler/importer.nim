@@ -245,6 +245,10 @@ proc importModuleAs(c: PContext; n: PNode, realModule: PSym, importHidden: bool)
     result.options.incl optImportHidden
   c.unusedImports.add((result, n.info))
   c.importModuleMap[result.id] = realModule.id
+  var modules = c.importModuleLookup.getOrDefault(realModule.name.id)
+  if realModule.id notin modules:
+    modules.add realModule.id
+    c.importModuleLookup[realModule.name.id] = modules
 
 proc transformImportAs(c: PContext; n: PNode): tuple[node: PNode, importHidden: bool] =
   var ret: typeof(result)
