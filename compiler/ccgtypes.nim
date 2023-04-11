@@ -1616,11 +1616,14 @@ proc genTypeInfo*(config: ConfigRef, m: BModule, t: PType; info: TLineInfo): Rop
   else:
     result = genTypeInfoV1(m, t, info)
 
-proc genTypeSection(m: BModule, n: PNode) =  
+proc genTypeSection(m: BModule, n: PNode) = 
+  var intSet = initIntSet()
   for i in 0..<n.len:
     if len(n[i]) == 0: continue
     if n[i][0].kind != nkPragmaExpr: continue
     for p in 0..<n[i][0].len:
       if (n[i][0][p].kind != nkSym): continue
       if sfKeep in n[i][0][p].sym.flags:
-        discard genTypeInfo(m.config, m, n[i][0][p].typ, n.info)
+        discard getTypeDescAux(m, n[i][0][p].typ, intSet, n[i][0][p].sym.kind)
+        if m.g.generatedHeader != nil:
+          discard getTypeDescAux(m.g.generatedHeader, n[i][0][p].typ, intSet, n[i][0][p].sym.kind)
