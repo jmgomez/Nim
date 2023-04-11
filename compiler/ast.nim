@@ -310,7 +310,9 @@ type
                       #
                       # This is disallowed but can cause the typechecking to go into
                       # an infinite loop, this flag is used as a sentinel to stop it.
-
+    sfKeep            # A flag for types that indicates the compiler to emit the type
+                      # even if it is not used. 
+                      
   TSymFlags* = set[TSymFlag]
 
 const

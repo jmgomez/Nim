@@ -71,7 +71,7 @@ const
     wPure, wHeader, wCompilerProc, wCore, wFinal, wSize, wShallow,
     wIncompleteStruct, wCompleteStruct, wByCopy, wByRef,
     wInheritable, wGensym, wInject, wRequiresInit, wUnchecked, wUnion, wPacked,
-    wCppNonPod, wBorrow, wGcSafe, wPartial, wExplain, wPackage}
+    wCppNonPod, wBorrow, wGcSafe, wPartial, wExplain, wPackage, wKeep}
   fieldPragmas* = declPragmas + {wGuard, wBitsize, wCursor,
     wRequiresInit, wNoalias, wAlign} - {wExportNims, wNodecl} # why exclude these?
   varPragmas* = declPragmas + {wVolatile, wRegister, wThreadVar,
@@ -1244,6 +1244,8 @@ proc singlePragma(c: PContext, sym: PSym, n: PNode, i: var int,
         sym.flags.incl sfNeverRaises
       of wSystemRaisesDefect:
         sym.flags.incl sfSystemRaisesDefect
+      of wKeep:
+        sym.flags.incl sfKeep 
       else: invalidPragma(c, it)
     elif comesFromPush and whichKeyword(ident) != wInvalid:
       discard "ignore the .push pragma; it doesn't apply"
