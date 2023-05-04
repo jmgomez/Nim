@@ -992,9 +992,12 @@ proc genProcHeader(m: BModule; prc: PSym; result: var Rope; asPtr: bool = false,
   # (instead of forward declaration) or header for function body with "_actual" postfix
   let asPtrStr = rope(if asPtr: "_PTR" else: "")
   var name = prc.loc.r
-  if isVirtual and not fromType:
-    let structType = prc.typ.n[1].sym.typ.sons[0]
-    name = getTypeDescWeak(m, structType, check, skParam) & "::" & name
+  if isVirtual:
+    if fromType:
+      rettype = "virtual " & rettype
+    else:
+      let structType = prc.typ.n[1].sym.typ.sons[0]
+      name = getTypeDescWeak(m, structType, check, skParam) & "::" & name
   if isReloadable(m, prc) and not asPtr:
     name.add("_actual")
   # careful here! don't access ``prc.ast`` as that could reload large parts of

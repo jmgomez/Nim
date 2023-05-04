@@ -1117,6 +1117,10 @@ proc getProcTypeCast(m: BModule, prc: PSym): Rope =
     result = "$1(*)$2" % [rettype, params]
 
 proc genProcBody(p: BProc; procBody: PNode) =
+  if p.module.config.backend == backendCpp: 
+    if p.prc==nil and sfUsesVirtual in p.module.module.flags or
+      p.prc!=nil and sfUsesVirtual in p.prc.flags:
+      inc p.splitDecls #if a proc uses virtual, we need to split the decls to get around "jump bypasses variable initialization"
   genStmts(p, procBody) # modifies p.locals, p.init, etc.
   if {nimErrorFlagAccessed, nimErrorFlagDeclared} * p.flags == {nimErrorFlagAccessed}:
     p.flags.incl nimErrorFlagDeclared
@@ -1172,12 +1176,12 @@ proc genProcAux*(m: BModule, prc: PSym) =
         #incl(res.loc.flags, lfIndirect)
         res.loc.storage = OnUnknown
 
-  if sfVirtual in prc.flags: #not sure if I should put this check somewhere else
+  if m.config.backend == backendCpp and sfVirtual in prc.flags:
     let thisParam = prc.typ.n[1].sym 
     var check: IntSet
     p.s(cpsLocals).addf("\t$1 $2 = this; $n",
       [getTypeDescWeak(m, thisParam.typ, check, skParam), thisParam.loc.r])
-   
+
   for i in 1..<prc.typ.n.len:
     let param = prc.typ.n[i].sym
     if param.typ.isCompileTimeOnly: continue

@@ -832,8 +832,7 @@ proc trackCall(tracked: PEffects; n: PNode) =
     if tfNoSideEffect notin op.flags and not importedFromC(a):
       # and it's not a recursive call:
       if not (a.kind == nkSym and a.sym == tracked.owner):
-        markSideEffect(tracked, a, n.info)
-
+        markSideEffect(tracked, a, n.info) 
   # p's effects are ours too:
   var a = n[0]
   #if canRaise(a):
@@ -917,6 +916,9 @@ proc trackCall(tracked: PEffects; n: PNode) =
         let op = getAttachedOp(tracked.graph, t, TTypeAttachedOp(opKind))
         if op != nil:
           n[0].sym = op
+
+  if tracked.config.backend == backendCpp and a.kind == nkSym and sfVirtual in a.sym.flags:
+    incl(tracked.owner.flags, sfUsesVirtual)
 
   if op != nil and op.kind == tyProc:
     for i in 1..<min(n.safeLen, op.len):

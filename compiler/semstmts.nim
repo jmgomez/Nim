@@ -2179,9 +2179,12 @@ proc semProcAux(c: PContext, n: PNode, kind: TSymKind,
   if sfBorrow in s.flags and c.config.cmd notin cmdDocLike:
     result[bodyPos] = c.graph.emptyNode
   
-  if sfVirtual in s.flags: #check cpp only and error here?
-    let typ = s.typ.sons[1].sons[0]
-    c.graph.virtualProcsPerType.mgetOrPut(typ.itemId, @[]).add s
+  if sfVirtual in s.flags:
+    if c.config.backend == backendCpp:
+      let typ = s.typ.sons[1].sons[0] #TODO error if not a ptr or should we allow ref/objects?
+      c.graph.virtualProcsPerType.mgetOrPut(typ.itemId, @[]).add s
+    else:
+      localError(c.config, n.info, "virtual procs are only supported in C++")
 
   if n[bodyPos].kind != nkEmpty and sfError notin s.flags:
     # for DLL generation we allow sfImportc to have a body, for use in VM
