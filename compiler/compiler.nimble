@@ -5,7 +5,6 @@ description = "Compiler package providing the compiler sources as a library."
 license = "MIT"
 skipDirs = @["."]
 installDirs = @["compiler"]
-paths = @["compiler"]
 import os
 
 var compilerDir = ""
