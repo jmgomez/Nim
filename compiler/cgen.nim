@@ -646,18 +646,7 @@ proc genGlobalVarDecl(p: BProc, n: PNode; td, value: Rope; decl: var Rope) =
     else:
       decl = runtimeFormat(s.cgDeclFrmt & ";$n", [td, s.loc.r])
 
-proc genCppVarForCtor(p: BProc, v: PSym; vn, value: PNode; decl: var Rope)
-
-proc callGlobalVarCppCtor(p: BProc; v: PSym; vn, value: PNode) =
-  let s = vn.sym
-  fillBackendName(p.module, s)
-  fillLoc(s.loc, locGlobalVar, vn, OnHeap)
-  var decl: Rope
-  let td = getTypeDesc(p.module, vn.sym.typ, dkVar)
-  genGlobalVarDecl(p, vn, td, "", decl)
-  decl.add " " & $s.loc.r
-  genCppVarForCtor(p, v, vn, value, decl)
-  p.module.s[cfsVars].add decl
+proc genCppVarForCtor(p: BProc, v: PSym; vn, value: PNode; decl: var Rope, didGenTemp: var bool)
 
 proc assignGlobalVar(p: BProc, n: PNode; value: Rope) =
   let s = n.sym
@@ -712,6 +701,23 @@ proc assignGlobalVar(p: BProc, n: PNode; value: Rope) =
   if p.withinLoop > 0 and value == "":
     # fixes tests/run/tzeroarray:
     resetLoc(p, s.loc)
+
+proc callGlobalVarCppCtor(p: BProc; v: PSym; vn, value: PNode) =
+  let s = vn.sym
+  fillBackendName(p.module, s)
+  fillLoc(s.loc, locGlobalVar, vn, OnHeap)
+  var decl: Rope
+  let td = getTypeDesc(p.module, vn.sym.typ, dkVar) 
+  genGlobalVarDecl(p, vn, td, "", decl)
+  decl.add " " & $s.loc.r
+  var didGenTemp: bool
+  genCppVarForCtor(p, v, vn, value, decl, didGenTemp)
+  if didGenTemp:
+    message(p.config, vn.info, warnGlobalVarConstructorTemporary, vn.sym.name.s)
+    decl = ""
+    assignGlobalVar(p, vn, decl)
+  else:
+    p.module.s[cfsVars].add decl
 
 proc assignParam(p: BProc, s: PSym, retType: PType) =
   assert(s.loc.r != "")

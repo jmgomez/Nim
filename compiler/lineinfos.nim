@@ -93,6 +93,7 @@ type
     warnImplicitDefaultValue = "ImplicitDefaultValue",
     warnGenericsIgnoredInjection = "GenericsIgnoredInjection",
     warnUser = "User",
+    warnGlobalVarConstructorTemporary = "GlobalVarConstructorTemporary",
     # hints
     hintSuccess = "Success", hintSuccessX = "SuccessX",
     hintCC = "CC",
@@ -198,6 +199,7 @@ const
     warnImplicitDefaultValue: "$1",
     warnGenericsIgnoredInjection: "$1",
     warnUser: "$1",
+    warnGlobalVarConstructorTemporary: "global variable '$1' initialization won't use 'contructor' as it requires a temporary variable",
     hintSuccess: "operation successful: $#",
     # keep in sync with `testament.isSuccess`
     hintSuccessX: "$build\n$loc lines; ${sec}s; $mem; proj: $project; out: $output",

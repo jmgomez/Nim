@@ -290,14 +290,24 @@ proc potentialValueInit(p: BProc; v: PSym; value: PNode; result: var Rope) =
     #echo "New code produced for ", v.name.s, " ", p.config $ value.info
     genBracedInit(p, value, isConst = false, v.typ, result)
 
-proc genCppVarForCtor(p: BProc, v: PSym; vn, value: PNode; decl: var Rope) =
+proc genCppVarForCtor(p: BProc, v: PSym; vn, value: PNode; decl: var Rope, didGenTemp: var bool) =
   var params = newRopeAppender()
   var argsCounter = 0
   let typ = skipTypes(value[0].typ, abstractInst)
   assert(typ.kind == tyProc)
   for i in 1..<value.len:
     assert(typ.len == typ.n.len)
+    #We need to test for temp in globals, see: #23657
+    let param = 
+      if typ[i].kind in {tyVar} and value[i].kind == nkHiddenAddr:
+        value[i][0]
+      else:
+        value[i]
+    var tempLoc: TLoc 
+    initLocExprSingleUse(p, param, tempLoc)
+    didGenTemp = didGenTemp or tempLoc.k == locTemp
     genOtherArg(p, value, i, typ, params, argsCounter)
+  
   if params.len == 0:
     decl = runtimeFormat("$#;\n", [decl])
   else:
@@ -359,7 +369,8 @@ proc genSingleVar(p: BProc, v: PSym; vn, value: PNode) =
       var decl = localVarDecl(p, vn)
       var tmp: TLoc
       if isCppCtorCall:
-        genCppVarForCtor(p, v, vn, value, decl)
+        var didGenTemp: bool
+        genCppVarForCtor(p, v, vn, value, decl, didGenTemp)
         line(p, cpsStmts, decl)
       else:
         initLocExprSingleUse(p, value, tmp)
