@@ -11,7 +11,7 @@
 
 const
   # examples of possible values for repos: Head, ea82b54
-  NimbleStableCommit = "74f08727e1a1eda6bf5f4ced52134cc2ea9b97f0" # pre 0.16.4
+  NimbleStableCommit = "7a3765f3b049a30360e7dac95ff07f84888a3536" # pre 0.16.4 (jmgomez, just for testing)
   AtlasStableCommit = "5faec3e9a33afe99a7d22377dd1b45a5391f5504"
   ChecksumsStableCommit = "bd9bf4eaea124bf8d01e08f92ac1b14c6879d8d3"
   SatStableCommit = "faf1617f44d7632ee9601ebc13887644925dcc01"
@@ -157,7 +157,7 @@ proc bundleC2nim(args: string) =
 
 proc bundleNimbleExe(latest: bool, args: string) =
   let commit = if latest: "HEAD" else: NimbleStableCommit
-  cloneDependency(distDir, "https://github.com/nim-lang/nimble.git",
+  cloneDependency(distDir, "https://github.com/jmgomez/nimble.git",
                   commit = commit, allowBundled = true)
   updateSubmodules(distDir / "nimble")
   nimCompile("dist/nimble/src/nimble.nim",
@@ -576,6 +576,9 @@ proc hostInfo(): string =
     [hostOS, hostCPU, $int.sizeof, $float.sizeof, $cpuEndian, getCurrentDir()]
 
 proc runCI(cmd: string) =
+  let batchParam = "--batch:$1" % "NIM_TESTAMENT_BATCH".getEnv("_")
+  execFold("Test selected Nimble packages", "testament $# pcat nimble-packages" % batchParam)
+
   doAssert cmd.len == 0, cmd # avoid silently ignoring
   echo "runCI: ", cmd
   echo hostInfo()
