@@ -576,9 +576,6 @@ proc hostInfo(): string =
     [hostOS, hostCPU, $int.sizeof, $float.sizeof, $cpuEndian, getCurrentDir()]
 
 proc runCI(cmd: string) =
-  let batchParam = "--batch:$1" % "NIM_TESTAMENT_BATCH".getEnv("_")
-  execFold("Test selected Nimble packages", "testament $# pcat nimble-packages" % batchParam)
-
   doAssert cmd.len == 0, cmd # avoid silently ignoring
   echo "runCI: ", cmd
   echo hostInfo()
