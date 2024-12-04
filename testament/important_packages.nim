@@ -30,7 +30,7 @@ type NimblePackage* = object
 
 var packages*: seq[NimblePackage]
 
-proc pkg(name: string; cmd = "nimble --maximumTaggedVersions:1 test"; url = "", useHead = true, allowFailure = false) =
+proc pkg(name: string; cmd = "nimble test"; url = "", useHead = true, allowFailure = false) =
   packages.add NimblePackage(name: name, cmd: cmd, url: url, useHead: useHead, allowFailure: allowFailure)
 
 pkg "alea"
@@ -114,7 +114,7 @@ pkg "nimfp", "nim c -o:nfp -r src/fp.nim"
 pkg "nimgame2", "nim c --mm:refc nimgame2/nimgame.nim"
 pkg "nimgen", "nim c -o:nimgenn -r src/nimgen/runcfg.nim"
 pkg "nimib"
-# pkg "nimlsp", "nimble test" #Internally needs to use useSystemNim in the before test tasks
+pkg "nimlsp", "nimble test"
 pkg "nimly", "nim c -r tests/test_readme_example.nim"
 pkg "nimPNG", useHead = true
 pkg "nimpy", "nim c -r tests/nimfrompy.nim"
