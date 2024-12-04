@@ -30,7 +30,7 @@ type NimblePackage* = object
 
 var packages*: seq[NimblePackage]
 
-proc pkg(name: string; cmd = "nimble test"; url = "", useHead = true, allowFailure = false) =
+proc pkg(name: string; cmd = "nimble test -l"; url = "", useHead = true, allowFailure = false) =
   packages.add NimblePackage(name: name, cmd: cmd, url: url, useHead: useHead, allowFailure: allowFailure)
 
 pkg "alea"
@@ -69,7 +69,7 @@ pkg "easygl", "nim c -o:egl -r src/easygl.nim", "https://github.com/jackmott/eas
 pkg "elvis"
 pkg "eth", "nim c -o:common -r tests/common/all_tests"
 pkg "faststreams"
-pkg "fidget", "nimble test -l"
+pkg "fidget"
 pkg "fusion"
 pkg "gara"
 pkg "ggplotnim", "nim c -d:noCairo -r tests/tests.nim"
