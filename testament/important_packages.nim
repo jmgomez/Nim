@@ -69,7 +69,7 @@ pkg "easygl", "nim c -o:egl -r src/easygl.nim", "https://github.com/jackmott/eas
 pkg "elvis"
 pkg "eth", "nim c -o:common -r tests/common/all_tests"
 pkg "faststreams"
-pkg "fidget"
+pkg "fidget", "nimble test -l"
 pkg "fusion"
 pkg "gara"
 pkg "ggplotnim", "nim c -d:noCairo -r tests/tests.nim"
