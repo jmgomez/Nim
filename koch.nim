@@ -11,7 +11,7 @@
 
 const
   # examples of possible values for repos: Head, ea82b54
-  NimbleStableCommit = "395b8c77b794778d9f9759ac7d913d2f2f7aa44f" # pre 0.16.4 (jmgomez, just for testing)
+  NimbleStableCommit = "f1ae000b8103e15bb4b8b1276d0b8794ea01f001" # 0.16.4
   AtlasStableCommit = "5faec3e9a33afe99a7d22377dd1b45a5391f5504"
   ChecksumsStableCommit = "bd9bf4eaea124bf8d01e08f92ac1b14c6879d8d3"
   SatStableCommit = "faf1617f44d7632ee9601ebc13887644925dcc01"
@@ -157,7 +157,7 @@ proc bundleC2nim(args: string) =
 
 proc bundleNimbleExe(latest: bool, args: string) =
   let commit = if latest: "HEAD" else: NimbleStableCommit
-  cloneDependency(distDir, "https://github.com/jmgomez/nimble.git",
+  cloneDependency(distDir, "https://github.com/nim-lang/nimble.git",
                   commit = commit, allowBundled = true)
   updateSubmodules(distDir / "nimble")
   nimCompile("dist/nimble/src/nimble.nim",
